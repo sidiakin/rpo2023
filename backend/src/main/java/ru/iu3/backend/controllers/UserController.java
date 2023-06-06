@@ -4,12 +4,13 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import ru.iu3.backend.models.Museum;
 import ru.iu3.backend.models.User;
 import ru.iu3.backend.repositories.MuseumRepository;
 import ru.iu3.backend.repositories.UserRepository;
+import ru.iu3.backend.tools.DataValidationException;
 
 import java.util.*;
 
@@ -24,8 +25,7 @@ public class UserController {
     MuseumRepository museumRepository;
 
     @GetMapping("/users")
-    public List
-    getAllCountries() {
+    public List  getAllusers() {
         return userRepository.findAll();
     }
 
@@ -46,22 +46,6 @@ public class UserController {
                     map =  new HashMap<>();
             map.put("error", error);
             return ResponseEntity.ok(map);
-        }
-    }
-
-    @PutMapping("/users/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable(value = "id") Long userId,
-                                               @RequestBody User userDetails) {
-        User user = null;
-        Optional<User>
-                cc = userRepository.findById(userId);
-        if (cc.isPresent()) {
-            user = cc.get();
-            user.login = userDetails.login;
-            userRepository.save(user);
-            return ResponseEntity.ok(user);
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found");
         }
     }
 
@@ -129,4 +113,36 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/users/{id}")
+    public ResponseEntity updateUser(@PathVariable(value = "id") Long userId,
+                                     @Valid @RequestBody User userDetails)
+            throws DataValidationException
+    {
+        try {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new DataValidationException(" Пользователь с таким индексом не найден"));
+            user.email = userDetails.email;
+            String np = userDetails.np;
+            if (np != null  && !np.isEmpty()) {
+                user.password = new BCryptPasswordEncoder().encode(np);
+            }
+            userRepository.save(user);
+            return ResponseEntity.ok(user);
+        }
+        catch (Exception ex) {
+            String error;
+            if (ex.getMessage().contains("users.email_UNIQUE"))
+                throw new DataValidationException("Пользователь с такой почтой уже есть в базе");
+            else
+                throw new DataValidationException("Неизвестная ошибка");
+        }
+    }
+
+    @GetMapping("/users/{id}")
+    public ResponseEntity getUser(@PathVariable(value = "id") Long userId)
+            throws DataValidationException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(()->new DataValidationException("Пользователь с таким индексом не найден"));
+        return ResponseEntity.ok(user);
+    }
 }

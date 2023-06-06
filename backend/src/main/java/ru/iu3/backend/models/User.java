@@ -38,6 +38,9 @@ public class User {
     @Column(name = "activity")
     public LocalDateTime activity;
 
+    @Column(name = "email")
+    public String email;
+
     @ManyToMany(mappedBy = "users")
     public Set<Museum> museums = new HashSet<>();
 
@@ -50,4 +53,8 @@ public class User {
         this.museums.remove(m);
         m.users.remove(this);
     }
+
+    @Transient
+    public String np;
+
 }

@@ -82,7 +82,7 @@ public class ArtistController {
     }
 
     @GetMapping("/artists/{id}")
-    public ResponseEntity getCountry(@PathVariable(value = "id") Long artistId)
+    public ResponseEntity getArtist(@PathVariable(value = "id") Long artistId)
             throws DataValidationException {
         Artist artist = artistRepository.findById(artistId)
                 .orElseThrow(()->new DataValidationException("Художник с таким индексом не найден"));

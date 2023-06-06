@@ -13,6 +13,7 @@ import CountryListComponent from "./components/CountryListComponent";
 import ArtistListComponent from "./components/ArtistListComponent";
 import CountryComponent from "./components/CountryComponent";
 import ArtistComponent from "./components/ArtistComponent";
+import MyAccountComponent from "./components/MyAccountComponent";
 
 const ProtectedRoute = ({children}) => {
     let user = Utils.getUser();
@@ -38,6 +39,7 @@ const App = props =>  {
                             <Route path="countries/:id" element={<ProtectedRoute><CountryComponent /></ProtectedRoute>}/>
                             <Route path="artists" element={<ProtectedRoute><ArtistListComponent/></ProtectedRoute>}/>
                             <Route path="artists/:id" element={<ProtectedRoute><ArtistComponent /></ProtectedRoute>}/>
+                            <Route path="my" element={<ProtectedRoute><MyAccountComponent/></ProtectedRoute>}/>
                         </Routes>
                     </div>
                 </div>
