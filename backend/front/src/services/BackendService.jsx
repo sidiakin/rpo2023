@@ -16,6 +16,8 @@ axios.interceptors.request.use(
         let token = Utils.getToken();
         if (token)
             config.headers.Authorization = token;
+        config.headers["Pragma"] = "no-cache";
+        config.headers["Cache-Control"] = "no-cache";
         return config;
     },
     error => {
@@ -38,6 +40,50 @@ class BackendService {
 
     login(login, password) {
         return axios.post(`${AUTH_URL}/login`, {login, password})
+    }
+
+    /* Countries */
+
+    retrieveAllCountries(page, limit) {
+        return axios.get(`${API_URL}/countries`);
+    }
+
+    retrieveCountry(id) {
+        return axios.get(`${API_URL}/countries/${id}`);
+    }
+
+    createCountry(country) {
+        return axios.post(`${API_URL}/countries`, country);
+    }
+
+    updateCountry(country) {
+        return axios.put(`${API_URL}/countries/${country.id}`, country);
+    }
+
+    deleteCountries(countries) {
+        return axios.post(`${API_URL}/deletecountries`, countries);
+    }
+
+    /* Artists */
+
+    retrieveAllArtists(page, limit) {
+        return axios.get(`${API_URL}/artists`);
+    }
+
+    retrieveArtist(id) {
+        return axios.get(`${API_URL}/artists/${id}`);
+    }
+
+    createArtist(artist) {
+        return axios.post(`${API_URL}/artists`, artist);
+    }
+
+    updateArtist(artist) {
+        return axios.put(`${API_URL}/artists/${artist.id}`, artist);
+    }
+
+    deleteArtists(artists) {
+        return axios.post(`${API_URL}/deleteartists`, artists);
     }
 
 }

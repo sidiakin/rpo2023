@@ -1,5 +1,6 @@
 package ru.iu3.backend.controllers;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,10 +10,12 @@ import ru.iu3.backend.models.Artist;
 import ru.iu3.backend.models.Country;
 import ru.iu3.backend.repositories.ArtistRepository;
 import ru.iu3.backend.repositories.CountryRepository;
+import ru.iu3.backend.tools.DataValidationException;
 
 
 import java.util.*;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/v1")
 public class ArtistController {
@@ -62,6 +65,9 @@ public class ArtistController {
         if (cc.isPresent()) {
             Artist = cc.get();
             Artist.name = ArtistDetails.name;
+            Artist.century = ArtistDetails.century;
+            Artist.country = ArtistDetails.country;
+
             artistRepository.save(Artist);
             return ResponseEntity.ok(Artist);
         } else {
@@ -69,19 +75,18 @@ public class ArtistController {
         }
     }
 
-    @DeleteMapping("/artists/{id}")
-    public ResponseEntity<Object> deleteArtist(@PathVariable(value = "id") Long ArtistId) {
-        Optional<Artist>
-                Artist = artistRepository.findById(ArtistId);
-        Map<String, Boolean>
-                resp = new HashMap<>();
-        if (Artist.isPresent()) {
-            artistRepository.delete(Artist.get());
-            resp.put("deleted", Boolean.TRUE);
-        }
-        else
-            resp.put("deleted", Boolean.FALSE);
-        return ResponseEntity.ok(resp);
+    @PostMapping("/deleteartists")
+    public ResponseEntity deleteArtists(@Valid @RequestBody List<Artist> artists) {
+        artistRepository.deleteAll(artists);
+        return new ResponseEntity(HttpStatus.OK);
     }
-    
+
+    @GetMapping("/artists/{id}")
+    public ResponseEntity getCountry(@PathVariable(value = "id") Long artistId)
+            throws DataValidationException {
+        Artist artist = artistRepository.findById(artistId)
+                .orElseThrow(()->new DataValidationException("Художник с таким индексом не найден"));
+        return ResponseEntity.ok(artist);
+    }
+
 }
